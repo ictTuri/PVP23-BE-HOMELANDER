@@ -1,0 +1,10 @@
+package com.codeonmars.usersms.model.user.dto;
+
+import lombok.Data;
+
+@Data
+public class TenantsSlotsDto {
+    private Long id;
+    private Integer available;
+    private Integer used;
+}

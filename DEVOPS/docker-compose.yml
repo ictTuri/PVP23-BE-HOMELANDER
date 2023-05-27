@@ -1,0 +1,103 @@
+version: '3.7'
+
+services:
+
+  registry-ms:
+    build:
+      context: ../registry-ms
+      dockerfile: Dockerfile
+    container_name: registry-ms
+    networks:
+      - dev_network
+    ports:
+      - 8080:8080
+    healthcheck:
+      test: "exit 0"
+
+  gateway-ms:
+    build:
+      context: ../gateway-ms
+      dockerfile: Dockerfile
+    container_name: gateway-ms
+    depends_on:
+      registry-ms:
+        condition: service_healthy
+    networks:
+      - dev_network
+    ports:
+      - 8081:8081
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-ms:8080/eureka
+
+  users-ms:
+    build:
+      context: ../users-ms
+      dockerfile: Dockerfile
+    container_name: users-ms
+    depends_on:
+      registry-ms:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - dev_network
+    ports:
+      - 8082:8082
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_FLYWAY_SCHEMAS: users_ms
+      SPRING_FLYWAY_USER: postgres
+      SPRING_FLYWAY_PASSWORD: postgres
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-ms:8080/eureka
+
+  properties-ms:
+    build:
+      context: ../properties-ms
+      dockerfile: Dockerfile
+    container_name: properties-ms
+    depends_on:
+      registry-ms:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - dev_network
+    ports:
+      - 8083:8083
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_FLYWAY_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_FLYWAY_SCHEMAS: properties_ms
+      SPRING_FLYWAY_USER: postgres
+      SPRING_FLYWAY_PASSWORD: postgres
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-ms:8080/eureka
+
+  db:
+    image: postgres:14.6
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
+      PGDATA: /var/lib/postgresql/data/mydb
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: "exit 0"
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+
+
+volumes:
+  postgres:

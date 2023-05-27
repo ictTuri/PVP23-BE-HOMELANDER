@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: gateway-ms
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          lowerCaseServiceId: true
+#      routes:
+#        - id: users-ms
+#          uri: lb://users-ms
+#          predicates:
+#            - Path=/users/**
+#        - id: properties-ms
+#          uri: lb://properties-ms
+#          predicates:
+#            - Path=/properties/**
+server:
+  port: 8081
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8080/eureka
+  instance:
+    hostname: registry-ms
+    prefer-ip-address: true
+
+url:
+  allowed: http://localhost:4200
+
+app:
+  jwt:
+    secretKey: supercalifragilisticexpialidocioussecretkeyhere
+    token-prefix: Bearer
+    token-expiration-after-days: 1

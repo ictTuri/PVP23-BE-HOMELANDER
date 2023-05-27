@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: users-ms
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    url: jdbc:postgresql://localhost:5432/postgres
+    schemas: users_ms
+    user: postgres
+    password: postgres
+    enabled: true
+    locations: classpath:db/migration
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 8082
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka
+  instance:
+    hostname: registry-ms
+    prefer-ip-address: true
+app:
+  jwt:
+    secretKey: supercalifragilisticexpialidocioussecretkeyhere
+    token-prefix: Bearer
+    token-expiration-after-days: 1
